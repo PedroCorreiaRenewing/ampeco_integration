@@ -157,6 +157,8 @@ class SessionsPipeline:
                 .rename(columns={"id": "session_serial_id"})
             )
 
+            ev_charger_session_daily_df['session_serial_id'] = ev_charger_session_daily_df['session_serial_id'].astype('Int64')
+
             ev_charger_session_daily_df = ev_charger_session_daily_df.drop(
                 columns=[
                     "source_id", "userId", "socket_source_id", "total_price",
