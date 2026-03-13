@@ -76,7 +76,7 @@ class UsersPipeline:
         self.uploader.upsert_inventory_user_groups(user_groups_df)  
 
         user_pk_df = self.db_interactor.fetch(
-        table_name="locations",
+        table_name="users",
         columns=["id", "source_id"],
         as_dataframe=True
     )
