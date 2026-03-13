@@ -131,7 +131,7 @@ class SessionsPipeline:
             ev_charger_session_df = ev_charger_session_df.merge(
                 authorizations_pk_df, left_on="authorization_id", right_on="authorization_source_id", how="left"
             )
-            ev_charger_session_df.drop(columns=["authorization_id","source_id"], inplace=True)
+            ev_charger_session_df.drop(columns=["authorization_id","authorization_source_id"], inplace=True)
             ev_charger_session_df = ev_charger_session_df.rename(columns={"authorization_new": "authorization_id"})
 
             ev_charger_session_df["authorization_id"] = ev_charger_session_df["authorization_id"].replace({np.nan: None})
