@@ -11,10 +11,10 @@ class SessionsTransformer:
         
         drop_cols = [
             "chargePointId","connectorId","reason","powerKw","totalAmount","tax","currency","nonBillableEnergy",
-            "paymentType","paymentMethodId","terminalId","paymentStatus","authorizationId","idTagLabel",
+            "paymentType","paymentMethodId","terminalId","paymentStatus","idTagLabel",
             "extendingSessionId","reimbursementEligibility","tariffSnapshotId","electricityCost","externalSessionId",
             "evsePhysicalReference","paymentStatusUpdatedAt","receiptId","energyConsumption","billingStatus","power",
-            "lastUpdatedAt","socPercent"
+            "socPercent","idTag"
         ]
 
         df = df.drop(columns=drop_cols, errors="ignore")
@@ -26,7 +26,10 @@ class SessionsTransformer:
             "stoppedAt": "end_date",
             "energy" : "total_energy_kwh",
             "amount" : "total_price",
-            "idTag": "card_id"
+            "authorizationId" : "authorization_id",
+            #"idTag": "card_id",
+            "lastUpdatedAt" : "last_update_date",
+            "userId": "user_id"
         })
         print(df)
         
@@ -151,7 +154,7 @@ class SessionsTransformer:
 
         
         cols_to_drop = [
-    'start_date', 'end_date', 'total_energy_kwh',
+    'start_date', 'end_date',
     'socket_id', 'emsp', 'card_id'
 ]
 
@@ -166,17 +169,27 @@ class SessionsTransformer:
             how='left'
         )
 
+        ev_charger_session_daily_df['session_days'] = (
+    ev_charger_session_daily_df
+    .groupby('session_id')['session_id']
+    .transform('count')
+)
         # final energy
         def resolve_energy(row):
+            # Caso 1 — veio da consumption (multi-day com dados)
             if pd.notnull(row.get('supplied_energy_day')):
                 return row['supplied_energy_day']
 
-            # multi day session without consumption 0 on days > 1
-            if '_01' not in row['sub_session_id']:
-                return 0
+            # Caso 2 — sessão single-day
+            if row['session_days'] == 1:
+                return row['total_energy_kwh']
 
-            # fallback to single day or first day
-            return row.get('total_energy_kwh')
+            # Caso 3 — sessão multi-day sem consumption
+            if row['sub_session_id'].endswith('_01'):
+                return row['total_energy_kwh']
+
+            # Caso 4 — dias intermédios
+            return 0.0
 
 
         ev_charger_session_daily_df['total_energy_kwh'] = (

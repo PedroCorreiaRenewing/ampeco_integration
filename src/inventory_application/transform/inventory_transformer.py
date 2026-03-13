@@ -12,7 +12,7 @@ class InventoryTransformer:
         drop_cols = [
             "networkType","network","capabilities","security","user","usesRenewableEnergy","chargingZoneId","managedByOperator",
             "monitoringEnabled","autoRecoveryEnabled",
-            "usesRenewableEnergy","communicationMode","displayTariffAndCosts","partner","enableAutoFaultRecovery",
+            "usesRenewableEnergy","communicationMode","displayTariffAndCosts","enableAutoFaultRecovery",
             "autoStartWithoutAuthorization","disableAutoStartEmulation","tags","uptimeTrackingEnabled",
             "uptimeTrackingActivatedAt","modelId"
         ]
@@ -25,9 +25,12 @@ class InventoryTransformer:
             "type": "network",
             "locationId": "local",
             "networkStatus" : "status_connectivity",
+            "hardwareStatus" : "status_hardware",
             "firstContactAt" : "start_operation_date"
         })
 
+        df['partner'] = df['partner'].str.get('id').fillna(0).astype('int64')
+        
         
         return df
 
@@ -39,14 +42,14 @@ class InventoryTransformer:
             return df
         
         drop_cols = [
-            "physicalReference","networkId","allowsReservation","bookingEnabled","roamingOperatorId",
+           "networkId","allowsReservation","bookingEnabled","roamingOperatorId",
             "createdAt", "lastUpdatedAt","tariffGroupId","label"
         ]
 
         df = df.drop(columns=drop_cols, errors="ignore")
 
         df = df.rename(columns={
-            "id": "source_id","currentType": "type", "powerOptions":"max_power","charge_point_id":"charge_point_source_id"
+            "id": "source_id","currentType": "type", "powerOptions":"max_power","charge_point_id":"charge_point_source_id", "physicalReference":"physical_reference","hardwareStatus" : "status_hardware"
         })
 
         df['max_power'] = df['max_power'].str['maxPower']
@@ -124,7 +127,7 @@ class InventoryTransformer:
         ev_charger_df=ev_charger_df.merge(extracted_location_df, left_on="local", right_on="location_source_id", how="left")
         ev_charger_df=ev_charger_df.drop(columns=["location_source_id"])
 
-        ev_charger_df=ev_charger_df.drop(columns=["status","status_connectivity","hardwareStatus","lastUpdatedAt","createdAt"], errors="ignore")
+        ev_charger_df=ev_charger_df.drop(columns=["lastUpdatedAt","createdAt"], errors="ignore")
         
         ##ev_charger_socket
 
@@ -133,9 +136,9 @@ class InventoryTransformer:
         
 
         ev_charger_socket_df=evse_df.merge(extracted_cp_df, on="charge_point_source_id", how="inner")
-        ev_charger_socket_df['socket_number']=ev_charger_socket_df.groupby("charge_point_source_id").cumcount()+1
-        ev_charger_socket_df['socket_id']=ev_charger_socket_df['charger_id_name'].astype(str) + "_" + ev_charger_socket_df['socket_number'].astype(str)
-        ev_charger_socket_df=ev_charger_socket_df.drop(columns=["charger_id_name","socket_number"])
+        #ev_charger_socket_df['socket_number']=ev_charger_socket_df.groupby("charge_point_source_id").cumcount()+1
+        ev_charger_socket_df['socket_id']=ev_charger_socket_df['charger_id_name'].astype(str) + "_" + ev_charger_socket_df['physical_reference'].astype(str)
+        ev_charger_socket_df=ev_charger_socket_df.drop(columns=["charger_id_name"]) #,"socket_number"])
         ev_charger_socket_df['charger_id']=ev_charger_socket_df['charge_point_source_id']
 
 

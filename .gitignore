@@ -2,4 +2,3 @@ myenv/
 .vscode/
 __pycache__/
 .env.example
-sessuibs_application_old

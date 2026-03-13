@@ -26,7 +26,7 @@ class DBUploader:
         self.interactor.upsert_dataframe("locations", locations, conflict_columns=["source_id", "source_system_id"])
 
     def upsert_inventory_ev_charger(self,ev_charger ):
-        self.interactor.upsert_dataframe("ev_charger", ev_charger, conflict_columns=["charger_id"])
+        self.interactor.upsert_dataframe("ev_charger", ev_charger, conflict_columns=["charger_id", "source_system_id"])
 
     def upsert_inventory_ev_charger_socket(self, ev_charger_socket):
-        self.interactor.upsert_dataframe("ev_charger_socket", ev_charger_socket, conflict_columns=["socket_id"])
+        self.interactor.upsert_dataframe("ev_charger_socket", ev_charger_socket, conflict_columns=["socket_id", "source_system_id"])

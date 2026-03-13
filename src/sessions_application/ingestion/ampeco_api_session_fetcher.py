@@ -16,7 +16,7 @@ class AMPECO_Session_Importer:
         self.logger = Logger("ampeco_api_session_fetcher.py")
 
     #fetch all sessions from AMPECO API with pagination
-    def fetch_sessions_paginated(self,start_date=None) -> pd.DataFrame:
+    def fetch_sessions_paginated(self,last_update_date=None) -> pd.DataFrame:
         headers = {
             "accept": "application/json",
             "authorization": f"Bearer {self.api_token}"
@@ -41,9 +41,9 @@ class AMPECO_Session_Importer:
                 "per_page": per_page,
                 "cursor": "null" if cursor is None else cursor
             }
-                if start_date is not None:
+                if last_update_date is not None:
                     
-                    params["filter[startedAfter]"] = start_date.isoformat()
+                    params["filter[lastUpdatedAfter]"] = last_update_date.isoformat()
 
                 response = req.get(
                     self.url_sessions_list,

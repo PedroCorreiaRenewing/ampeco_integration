@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     url_users_list: str
     url_user_group_list: str
     url_rfid_list: str
+    url_authorization_list: str
+    url_partners_list: str
 
     class Config:
         env_file = ".env"

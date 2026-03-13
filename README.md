@@ -43,6 +43,8 @@ Each sub-application is structured as follows:
 2. **Install Dependencies:**
 
     ```bash
+    pip install pydantic-settings
+    
     pip install -r requirements.txt
     ```
 

@@ -53,6 +53,23 @@ class UsersPipeline:
         user_group_user_df=user_group_user_df.sort_values(by="source_id", ascending=True)
         user_groups_df=user_groups_df.sort_values(by="source_id", ascending=True)       
         users_df.to_excel("users_df.xlsx", index=False)
+        
+        #user status pk
+        user_status_pk_df = self.db_interactor.fetch(
+        table_name="user_status",
+        columns=["id",  "source_status"],
+        where={"source_entity": source_system_id},
+        as_dataframe=True
+    )
+        user_status_pk_df['id'] = user_status_pk_df['id'].astype("Int64")
+        user_status_pk_df.rename(columns={"id": "status_new"}, inplace=True)
+        
+        user_status_pk_df['source_status'] = user_status_pk_df['source_status'].str.lower()
+        users_df['status'] = users_df['status'].str.lower()
+        users_df = users_df.merge(user_status_pk_df, left_on="status", right_on="source_status", how="left")
+        users_df.drop(columns=["status", "source_status"], inplace=True)
+        users_df = users_df.rename(columns={"status_new": "status"})
+
         print("Uploading users to database...")
         self.uploader.upsert_inventory_user(users_df)
         print("Uploading user groups to database...")
@@ -92,6 +109,7 @@ class UsersPipeline:
         user_group_user_df.drop(columns=["userGroupIds","source_id"], inplace=True)
         user_group_user_df = user_group_user_df.rename(columns={"id": "user_group_id"})
         user_group_user_df.dropna(subset=["user_id","user_group_id"], inplace=True)
+
         print("Uploading user group users to database...")
         self.uploader.upsert_inventory_user_group_user(user_group_user_df)              
              

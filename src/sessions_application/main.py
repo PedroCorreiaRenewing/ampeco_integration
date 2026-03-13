@@ -7,6 +7,7 @@ from src.repository.db_functions import PostgresInteraction
 from src.configs.settings import settings
 from sqlalchemy import create_engine
 import pandas as pd
+import numpy as np
 
 
 class SessionsPipeline:
@@ -25,7 +26,7 @@ class SessionsPipeline:
         print("===== START AMPECO SESSIONS ETL =====")
 
         max_date = self.db_interactor.get_max_value(
-            column_name="start_date",
+            column_name="last_update_date",
             table_name="ev_charger_session"
         )
 
@@ -67,6 +68,73 @@ class SessionsPipeline:
             ev_charger_session_df = ev_charger_session_df.where(
                 pd.notnull(ev_charger_session_df), None
             )
+
+            socket_pk_df = self.db_interactor.fetch(
+                table_name="ev_charger_socket",
+                columns=["id", "source_id"],
+                where={
+                    "source_system_id": source_system_id,
+                    "source_id": tuple(ev_charger_session_df["socket_source_id"].astype(str).tolist())
+                },
+                as_dataframe=True
+            )
+
+            socket_pk_df=socket_pk_df.rename(columns={"id": "socket_id", "source_id": "socket_source_match_id"})
+
+            ev_charger_session_df["socket_source_id"] = ev_charger_session_df["socket_source_id"].astype("Int64")
+            socket_pk_df["socket_source_match_id"] = socket_pk_df["socket_source_match_id"].astype("Int64")
+
+            ev_charger_session_df = ev_charger_session_df.merge(
+                socket_pk_df, left_on="socket_source_id", right_on="socket_source_match_id", how="left"
+            )            
+
+            ev_charger_session_df['socket_id'] = ev_charger_session_df['socket_id'].replace({np.nan: None})
+            ev_charger_session_df['user_id'] = ev_charger_session_df['user_id'].replace({np.nan: None})
+
+            session_status_pk_df = self.db_interactor.fetch(
+                table_name="session_status",
+                columns=["id", "source_status"],
+                where=
+                    {"source_entity": source_system_id},
+                as_dataframe=True
+            )
+
+            session_status_pk_df['id'] = session_status_pk_df['id'].astype("Int64")
+            session_status_pk_df.rename(columns={"id": "status_new"}, inplace=True)
+
+            session_status_pk_df['source_status'] = session_status_pk_df['source_status'].str.lower()
+            ev_charger_session_df['status'] = ev_charger_session_df['status'].str.lower()
+
+            ev_charger_session_df = ev_charger_session_df.merge(
+                session_status_pk_df, left_on="status", right_on="source_status", how="left"
+            )
+            ev_charger_session_df.drop(columns=["status","source_status"], inplace=True)
+            ev_charger_session_df = ev_charger_session_df.rename(columns={"status_new": "status"})
+
+            ev_charger_session_df['authorization_id'] = ev_charger_session_df['authorization_id'].replace({np.nan: None})
+            
+            authorizations_pk_df = self.db_interactor.fetch(
+                table_name="authorizations_history",
+                columns=["id", "source_id"],
+                where={
+                    "source_system_id": source_system_id,
+                    "source_id": tuple(ev_charger_session_df["authorization_id"].astype(str).tolist())
+                },
+                as_dataframe=True
+            )
+
+            authorizations_pk_df['source_id'] = authorizations_pk_df['source_id'].astype("Int64")
+            authorizations_pk_df.rename(columns={"id": "authorization_new", "source_id":"authorization_source_id"}, inplace=True)
+
+            ev_charger_session_df['authorization_id'] = ev_charger_session_df['authorization_id'].astype("Int64")
+
+            ev_charger_session_df = ev_charger_session_df.merge(
+                authorizations_pk_df, left_on="authorization_id", right_on="authorization_source_id", how="left"
+            )
+            ev_charger_session_df.drop(columns=["authorization_id","source_id"], inplace=True)
+            ev_charger_session_df = ev_charger_session_df.rename(columns={"authorization_new": "authorization_id"})
+
+            ev_charger_session_df["authorization_id"] = ev_charger_session_df["authorization_id"].replace({np.nan: None})
 
             # -------- LOAD (SESSION) --------
             print("Upserting ev_charger_session...")
