@@ -51,8 +51,7 @@ class UsersPipeline:
         user_groups_df['source_system_id'] = source_system_id 
         users_df=users_df.sort_values(by="source_id", ascending=True)
         user_group_user_df=user_group_user_df.sort_values(by="source_id", ascending=True)
-        user_groups_df=user_groups_df.sort_values(by="source_id", ascending=True)       
-        users_df.to_excel("users_df.xlsx", index=False)
+        user_groups_df=user_groups_df.sort_values(by="source_id", ascending=True)     
         
         #user status pk
         user_status_pk_df = self.db_interactor.fetch(

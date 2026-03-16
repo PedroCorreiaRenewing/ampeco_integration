@@ -51,9 +51,6 @@ class InventoryPipeline:
         ev_charger_socket_df=ev_charger_socket_df.sort_values(by="source_id", ascending=True)
         locations_df=locations_df.sort_values(by="source_id", ascending=True)   
 
-        locations_df.to_excel("locations.xlsx", index=False)
-        
-        ev_charger_socket_df.to_excel("ev_charger_socket.xlsx", index=False)
         #Insert Locations into DB
         print("Uploading local to database...")
         self.uploader.upsert_inventory_local(locations_df) 
@@ -73,7 +70,7 @@ class InventoryPipeline:
         ev_charger_df.drop(columns=["local","source_id_y"], inplace=True)
         ev_charger_df = ev_charger_df.rename(columns={"id": "local", "source_id_x": "source_id"})
 
-        ev_charger_df.to_excel("ev_charger.xlsx", index=False)
+      
 
         #charger status pk
         charger_status_pk_df = self.db_interactor.fetch(
@@ -143,7 +140,7 @@ class InventoryPipeline:
         ev_charger_df["partner"] = ev_charger_df["partner"].astype("Int64")
         print(ev_charger_df.head())
 
-        ev_charger_df.to_excel("ev_charger.xlsx", index=False)
+     
         #Insert ev_charger into DB
         print("Uploading ev_charger to database...")
         self.uploader.upsert_inventory_ev_charger(ev_charger_df) 
@@ -199,9 +196,8 @@ class InventoryPipeline:
         ev_charger_socket_df = ev_charger_socket_df.rename(columns={"status_hardware_new": "status_hardware"})
 
         duplicates = ev_charger_socket_df.duplicated(subset=["socket_id", "source_system_id"], keep=False)
-        print(ev_charger_socket_df[duplicates])
+        print(ev_charger_socket_df[duplicates])        
         
-        ev_charger_socket_df.to_excel("ev_charger_socket.xlsx", index=False)
         #Insert ev_charger_socket into DB
         print("Uploading ev_charger_socket to database...")
         self.uploader.upsert_inventory_ev_charger_socket(ev_charger_socket_df)

@@ -26,7 +26,7 @@ class InventoryTransformer:
             "locationId": "local",
             "networkStatus" : "status_connectivity",
             "hardwareStatus" : "status_hardware",
-            "firstContactAt" : "start_operation_date"
+            "integratedAt" : "start_operation_date"
         })
 
         df['partner'] = df['partner'].str.get('id').fillna(0).astype('int64')

@@ -47,7 +47,7 @@ class AMPECO_Inventory_Importer:
             charging_points_df = pd.DataFrame(all_charging_points)
             print(charging_points_df.head())
             print(f"Total charging points fetched: {len(charging_points_df)}")
-            charging_points_df.to_excel("charging_points.xlsx", index=False)
+            #charging_points_df.to_excel("charging_points.xlsx", index=False)
             #self.logger.info(f"Fetched {len(charging_points_df)} charging points from Ampeco API.")
             return charging_points_df
 
@@ -90,7 +90,7 @@ class AMPECO_Inventory_Importer:
 
         if all_evse:
             all_evse_df = pd.concat(all_evse, ignore_index=True)
-            all_evse_df.to_excel("all_evse.xlsx", index=False)
+            #all_evse_df.to_excel("all_evse.xlsx", index=False)
             return all_evse_df
         else:
             return pd.DataFrame()
