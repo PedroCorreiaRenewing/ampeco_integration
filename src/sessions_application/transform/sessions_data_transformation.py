@@ -11,7 +11,7 @@ class SessionsTransformer:
             return df
         
         drop_cols = [
-            "chargePointId","connectorId","reason","powerKw","totalAmount","tax","currency","nonBillableEnergy",
+            "chargePointId","connectorId","reason","powerKw","tax","currency","nonBillableEnergy",
             "paymentType","paymentMethodId","terminalId","paymentStatus","idTagLabel",
             "extendingSessionId","reimbursementEligibility","tariffSnapshotId","electricityCost","externalSessionId",
             "evsePhysicalReference","paymentStatusUpdatedAt","receiptId","energyConsumption","billingStatus","power",
@@ -55,6 +55,8 @@ class SessionsTransformer:
         ev_charger_session_df['total_energy_kwh']=ev_charger_session_df['total_energy_kwh'].astype(float)/1000.0
         ev_charger_session_df['total_duration_min']=((pd.to_datetime(ev_charger_session_df['end_date']) - pd.to_datetime(ev_charger_session_df['start_date'])).dt.total_seconds())/60.0
         ev_charger_session_df['session_id']=ev_charger_session_df['source_id']
+        ev_charger_session_df['total_price_without_taxes'] = ev_charger_session_df['totalAmount'].str.get('withoutTax')
+        ev_charger_session_df.drop(columns=['totalAmount'], inplace=True, errors='ignore')
 
         ##Processing diff day session consumption to get supplied_energy_day per sub_session_id
         if use_consumption:

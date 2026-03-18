@@ -47,9 +47,7 @@ class SessionsPipeline:
 
             if session_df.empty:
                 print("Batch vazio — skipping consumption fetch")
-                continue
-
-            session_df.to_excel(f"session_batch_{i}.xlsx", index=False)
+                continue            
 
             # -------- FETCH CONSUMPTION --------
             diff_day_session_consumption_df = (
