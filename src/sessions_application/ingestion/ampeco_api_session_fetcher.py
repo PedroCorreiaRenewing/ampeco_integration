@@ -68,7 +68,7 @@ class AMPECO_Session_Importer:
                 if not cursor:
                     break  
 
-            sessions_df = pd.DataFrame(sessions)
+            sessions_df = pd.DataFrame(sessions)           
             print(f"Total sessions fetched: {len(sessions_df)}")
 
             return sessions_df

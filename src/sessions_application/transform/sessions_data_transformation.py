@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 class SessionsTransformer:
 
@@ -122,16 +123,16 @@ class SessionsTransformer:
         ev_charger_session_df['end_date'] = (
             pd.to_datetime(ev_charger_session_df['end_date']).dt.tz_localize(None)
         )
-
-        ev_charger_session_df = ev_charger_session_df.dropna(
-            subset=['start_date', 'end_date']
-        )
+        ev_charger_session_df.dropna(subset=['start_date'], inplace=True)
 
         rows = []
 
         for _, row in ev_charger_session_df.iterrows():
             s_start = row['start_date']
             s_end = row['end_date']
+
+            if pd.isnull(s_end):
+                s_end = s_start
 
             date_range = pd.date_range(start=s_start.date(), end=s_end.date())
 
@@ -151,6 +152,7 @@ class SessionsTransformer:
                 rows.append(row_data)
 
         ev_charger_session_daily_df = pd.DataFrame(rows)
+        ev_charger_session_df = ev_charger_session_df.replace({np.nan: None, pd.NaT: None})
 
         
         cols_to_drop = [

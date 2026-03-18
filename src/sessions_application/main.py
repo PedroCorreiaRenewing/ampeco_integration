@@ -31,7 +31,7 @@ class SessionsPipeline:
         )
 
         fetch_from_date = (
-            max_date - pd.Timedelta(days=4)
+            max_date - pd.Timedelta(days=48)
             if pd.notnull(max_date)
             else pd.Timestamp("2022-01-01")
         )
@@ -48,6 +48,8 @@ class SessionsPipeline:
             if session_df.empty:
                 print("Batch vazio — skipping consumption fetch")
                 continue
+
+            session_df.to_excel(f"session_batch_{i}.xlsx", index=False)
 
             # -------- FETCH CONSUMPTION --------
             diff_day_session_consumption_df = (
