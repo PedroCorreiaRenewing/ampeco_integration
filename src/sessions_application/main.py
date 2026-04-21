@@ -31,7 +31,7 @@ class SessionsPipeline:
         )
 
         fetch_from_date = (
-            max_date - pd.Timedelta(days=7)
+            max_date - pd.Timedelta(days=4)
             if pd.notnull(max_date)
             else pd.Timestamp("2022-01-01")
         )
