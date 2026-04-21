@@ -57,6 +57,7 @@ class SessionsTransformer:
         ev_charger_session_df['session_id']=ev_charger_session_df['source_id']
         ev_charger_session_df['total_price_without_taxes'] = ev_charger_session_df['totalAmount'].str.get('withoutTax')
         ev_charger_session_df.drop(columns=['totalAmount'], inplace=True, errors='ignore')
+        ev_charger_session_df['start_hour'] = pd.to_datetime(ev_charger_session_df['start_date']).dt.strftime('%H:00')
 
         ##Processing diff day session consumption to get supplied_energy_day per sub_session_id
         if use_consumption:
