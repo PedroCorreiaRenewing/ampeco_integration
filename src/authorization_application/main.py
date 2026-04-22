@@ -145,6 +145,13 @@ class AuthorizationsPipeline:
 
             authorizations_df = authorizations_df.replace({np.nan: None})
             
+            if not authorizations_df.empty:
+                authorizations_df = authorizations_df.sort_values(by="last_update_date", ascending=True)
+                authorizations_df = authorizations_df.drop_duplicates(
+                    subset=["source_id", "source_system_id"], 
+                    keep='last'
+                )
+            
 #            print("Uploading authorizations to database...")
             self.uploader.upsert_inventory_authorization(authorizations_df)
 
