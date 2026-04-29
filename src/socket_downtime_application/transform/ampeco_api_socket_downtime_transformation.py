@@ -25,5 +25,6 @@ class SocketDowntimeDataTransformer:
         ], errors="ignore")  
 
         df['total_downtime_minutes'] = (pd.to_datetime(df['end_date']) - pd.to_datetime(df['start_date'])).dt.total_seconds() / 60
+        df['total_downtime_seconds'] = (pd.to_datetime(df['end_date']) - pd.to_datetime(df['start_date'])).dt.total_seconds()
 
         return df
