@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     url_rfid_list: str
     url_authorization_list: str
     url_partners_list: str
+    url_socket_downtime_list: str
 
     class Config:
         env_file = ".env"

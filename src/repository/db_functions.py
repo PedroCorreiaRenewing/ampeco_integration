@@ -136,10 +136,26 @@ class PostgresInteraction:
 
         return rows
     
-    def get_max_value(self,column_name, table_name):
-        query = text(f"SELECT MAX({column_name}) FROM {table_name}")
-    
+    def get_max_value(self,column_name, table_name,where=None):
+       
+        # 1. Base da query
+        query_str = f"SELECT MAX({column_name}) FROM {table_name}"
+        params = {}
+
+        # 2. Construção dinâmica do WHERE (se existir)
+        if where:
+            conditions = []
+            for key, value in where.items():
+                # Usamos :key para bind parameters seguros
+                conditions.append(f"{key} = :{key}")
+                params[key] = value
+            query_str += " WHERE " + " AND ".join(conditions)
+
+        query = text(query_str)
+
         with self.engine.connect() as connection:
-            result = connection.execute(query).fetchone()
-            # result[0] will contain the value or None if table is empty
-            return result[0] if result else None
+            result = connection.execute(query, params).fetchone()
+            value = result[0] if result else None            
+           
+        
+        return value
