@@ -115,7 +115,7 @@ class SessionsPipeline:
             
             authorizations_pk_df = self.db_interactor.fetch(
                 table_name="authorizations_history",
-                columns=["id", "source_id"],
+                columns=["id", "source_id", "user_id"],
                 where={
                     "source_system_id": source_system_id,
                     "source_id": tuple(ev_charger_session_df["authorization_id"].astype(str).tolist())
@@ -125,6 +125,9 @@ class SessionsPipeline:
 
             authorizations_pk_df['source_id'] = authorizations_pk_df['source_id'].astype("Int64")
             authorizations_pk_df.rename(columns={"id": "authorization_new", "source_id":"authorization_source_id"}, inplace=True)
+            authorizations_pk_df["user_id"] = authorizations_pk_df["user_id"].where(
+                authorizations_pk_df["user_id"].notna()
+            ).astype("Int64")
 
             ev_charger_session_df['authorization_id'] = ev_charger_session_df['authorization_id'].astype("Int64")
 
@@ -135,6 +138,8 @@ class SessionsPipeline:
             ev_charger_session_df = ev_charger_session_df.rename(columns={"authorization_new": "authorization_id"})
 
             ev_charger_session_df["authorization_id"] = ev_charger_session_df["authorization_id"].replace({np.nan: None})
+
+        
 
             # -------- LOAD (SESSION) --------
             print("Upserting ev_charger_session...")

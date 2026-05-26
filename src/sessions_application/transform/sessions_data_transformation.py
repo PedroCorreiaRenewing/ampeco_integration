@@ -15,7 +15,7 @@ class SessionsTransformer:
             "paymentType","paymentMethodId","terminalId","paymentStatus","idTagLabel",
             "extendingSessionId","reimbursementEligibility","tariffSnapshotId","electricityCost","externalSessionId",
             "evsePhysicalReference","paymentStatusUpdatedAt","receiptId","energyConsumption","billingStatus","power",
-            "socPercent","idTag"
+            "socPercent","idTag","userId"
         ]
 
         df = df.drop(columns=drop_cols, errors="ignore")
@@ -30,7 +30,7 @@ class SessionsTransformer:
             "authorizationId" : "authorization_id",
             #"idTag": "card_id",
             "lastUpdatedAt" : "last_update_date",
-            "userId": "user_id"
+            #"userId": "user_id"
         })
         print(df)
         
