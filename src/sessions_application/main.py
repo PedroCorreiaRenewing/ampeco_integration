@@ -89,8 +89,7 @@ class SessionsPipeline:
             )            
 
             ev_charger_session_df['socket_id'] = ev_charger_session_df['socket_id'].replace({np.nan: None})
-            ev_charger_session_df['user_id'] = ev_charger_session_df['user_id'].replace({np.nan: None})
-
+            
             session_status_pk_df = self.db_interactor.fetch(
                 table_name="session_status",
                 columns=["id", "source_status"],
