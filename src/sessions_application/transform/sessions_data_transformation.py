@@ -29,7 +29,7 @@ class SessionsTransformer:
             "amount" : "total_price",
             "authorizationId" : "authorization_id",
             #"idTag": "card_id",
-            "lastUpdatedAt" : "last_update_date",
+            "lastUpdatedAt" : "last_update_date"
             #"userId": "user_id"
         })
         print(df)
