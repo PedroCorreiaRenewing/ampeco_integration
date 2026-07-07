@@ -35,30 +35,6 @@ class SessionsTransformer:
         print(df)
         
         return df
-    
-    def calculate_idle_minutes(self, charging_periods):
-        
-        if not isinstance(charging_periods, list):
-            return 0.0
-
-        idle_minutes = 0.0
-
-        for period in charging_periods:
-            if period.get("chargingState") != "idle":
-                continue
-
-            start = pd.to_datetime(period.get("startedAt"), errors="coerce")
-            end = pd.to_datetime(period.get("stoppedAt"), errors="coerce")
-
-            if pd.isna(start) or pd.isna(end):
-                continue
-
-            if end < start:
-                continue
-
-            idle_minutes += (end - start).total_seconds() / 60.0
-
-        return idle_minutes
    
   
     def build_inventory_tables(self, session_df,diff_day_session_consumption_df):
@@ -75,51 +51,14 @@ class SessionsTransformer:
         and 'timestamp' in diff_day_session_consumption_df.columns
     )
         
-        ev_charger_session_df = session_df
+        ev_charger_session_df=session_df
+        ev_charger_session_df['total_energy_kwh']=ev_charger_session_df['total_energy_kwh'].astype(float)/1000.0
+        ev_charger_session_df['total_duration_min']=((pd.to_datetime(ev_charger_session_df['end_date']) - pd.to_datetime(ev_charger_session_df['start_date'])).dt.total_seconds())/60.0
+        ev_charger_session_df['session_id']=ev_charger_session_df['source_id']
+        ev_charger_session_df['total_price_without_taxes'] = ev_charger_session_df['totalAmount'].str.get('withoutTax')
+        ev_charger_session_df.drop(columns=['totalAmount'], inplace=True, errors='ignore')
+        ev_charger_session_df['start_hour'] = pd.to_datetime(ev_charger_session_df['start_date']).dt.strftime('%H:00')
 
-        ev_charger_session_df['total_energy_kwh'] = (
-            ev_charger_session_df['total_energy_kwh'].astype(float) / 1000.0
-        )
-
-        ev_charger_session_df['total_duration_min'] = (
-            (
-                pd.to_datetime(ev_charger_session_df['end_date']) -
-                pd.to_datetime(ev_charger_session_df['start_date'])
-            ).dt.total_seconds() / 60.0
-        )
-
-  
-        # Idle time
-      
-        if 'chargingPeriods' in ev_charger_session_df.columns:
-            ev_charger_session_df['time_no_charging_min'] = (
-                ev_charger_session_df['chargingPeriods']
-                .apply(self.calculate_idle_minutes)
-            )
-        else:
-            ev_charger_session_df['time_no_charging_min'] = 0.0
-
-        # Charging time
-        ev_charger_session_df['time_charging_min'] = (
-            ev_charger_session_df['total_duration_min']
-            - ev_charger_session_df['time_no_charging_min']
-        ).clip(lower=0)
-
-        ev_charger_session_df['session_id'] = ev_charger_session_df['source_id']
-
-        ev_charger_session_df['total_price_without_taxes'] = (
-            ev_charger_session_df['totalAmount'].str.get('withoutTax')
-        )
-
-        ev_charger_session_df.drop(
-            columns=['totalAmount'],
-            inplace=True,
-            errors='ignore'
-        )
-
-        ev_charger_session_df['start_hour'] = (
-            pd.to_datetime(ev_charger_session_df['start_date']).dt.strftime('%H:00')
-        )
         ##Processing diff day session consumption to get supplied_energy_day per sub_session_id
         if use_consumption:
            
@@ -262,17 +201,7 @@ class SessionsTransformer:
             ev_charger_session_daily_df.apply(resolve_energy, axis=1)
         )
 
-        ev_charger_session_df.drop(
-            columns=['chargingPeriods'],
-            inplace=True,
-            errors='ignore'
-        )
-
-        ev_charger_session_daily_df.drop(
-            columns=['chargingPeriods'],
-            inplace=True,
-            errors='ignore'
-        )
+        
         
         
 

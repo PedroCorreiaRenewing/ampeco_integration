@@ -26,7 +26,8 @@ class InventoryTransformer:
             "locationId": "local",
             "networkStatus" : "status_connectivity",
             "hardwareStatus" : "status_hardware",
-            "integratedAt" : "start_operation_date"
+            "integratedAt" : "start_operation_date",
+            "createdAt" : "created_date"
         })
 
         df['partner'] = df['partner'].str.get('id').fillna(0).astype('int64')
@@ -127,7 +128,7 @@ class InventoryTransformer:
         ev_charger_df=ev_charger_df.merge(extracted_location_df, left_on="local", right_on="location_source_id", how="left")
         ev_charger_df=ev_charger_df.drop(columns=["location_source_id"])
 
-        ev_charger_df=ev_charger_df.drop(columns=["lastUpdatedAt","createdAt"], errors="ignore")
+        ev_charger_df=ev_charger_df.drop(columns=["lastUpdatedAt"], errors="ignore")
         
         ##ev_charger_socket
 

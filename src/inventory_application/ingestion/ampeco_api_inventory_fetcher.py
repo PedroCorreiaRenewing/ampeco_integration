@@ -33,6 +33,7 @@ class AMPECO_Inventory_Importer:
                 response = req.get(self.url_charging_points_list, headers=headers, params=params)
                 response.raise_for_status()
                 data = response.json()
+                print(data)
 
                 page_data = data.get("data", [])
                 all_charging_points.extend(page_data)
@@ -68,7 +69,7 @@ class AMPECO_Inventory_Importer:
             response = req.get(url, headers=headers)
             response.raise_for_status()
             data = response.json()
-
+            print(data)
             evses_list = data.get("data", [])
             df = pd.DataFrame(evses_list)
             print(f"Charge point {charge_point_id}: {len(df)} EVSEs fetched")
@@ -112,7 +113,7 @@ class AMPECO_Inventory_Importer:
                 response = req.get(self.url_locations_list, headers=headers, params=params)
                 response.raise_for_status()
                 data = response.json()
-
+                print(data)
                 page_data = data.get("data", [])
                 all_locations.extend(page_data)
 

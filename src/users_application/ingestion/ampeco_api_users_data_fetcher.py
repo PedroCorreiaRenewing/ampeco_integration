@@ -33,6 +33,7 @@ class AMPECO_Users_Data_Importer:
                 response = req.get(self.url_users_list, headers=headers, params=params)
                 response.raise_for_status()
                 data = response.json()
+                print(data)
 
                 page_data = data.get("data", [])
                 all_users.extend(page_data)
@@ -70,6 +71,7 @@ class AMPECO_Users_Data_Importer:
                 response = req.get(self.url_user_groups_list, headers=headers, params=params)
                 response.raise_for_status()
                 data = response.json()
+                print(data)
 
                 page_data = data.get("data", [])
                 all_user_groups.extend(page_data)
