@@ -2,3 +2,4 @@ myenv/
 .vscode/
 __pycache__/
 .env.example
+.env

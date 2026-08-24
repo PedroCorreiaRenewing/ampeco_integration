@@ -40,6 +40,7 @@ class AMPECO_Downtime_Data_Importer:
                 )
                 response.raise_for_status()
                 data = response.json()
+                print(data)
 
                 page_data = data.get("data", [])
                 if not page_data:

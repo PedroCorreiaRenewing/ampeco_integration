@@ -40,6 +40,7 @@ class AMPECO_Authorization_Data_Importer:
                 response = req.get(self.url_authorizations_list, headers=headers, params=params,timeout=30)
                 response.raise_for_status()
                 data = response.json()
+                print(data)
 
                 page_data = data.get("data", [])
                 if not page_data:
