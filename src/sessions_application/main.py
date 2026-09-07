@@ -141,6 +141,29 @@ class SessionsPipeline:
         
 
             # -------- LOAD (SESSION) --------
+            
+            print(
+                ev_charger_session_df[
+                    ev_charger_session_df.duplicated(
+                        subset=["source_id", "source_system_id"],
+                        keep=False
+                    )
+                ][[
+                    "source_id",
+                    "source_system_id",
+                    "session_id",
+                    "socket_id",
+                    "start_date",
+                    "end_date",
+                    "status"
+                ]].to_string(index=False)
+            )
+
+            ev_charger_session_df = ev_charger_session_df.drop_duplicates(
+                subset=["source_id", "source_system_id"],
+                keep="last"
+            )
+
             print("Upserting ev_charger_session...")
             self.uploader.upsert_session(ev_charger_session_df)
 

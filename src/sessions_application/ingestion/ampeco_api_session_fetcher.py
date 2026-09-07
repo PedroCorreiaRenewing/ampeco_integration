@@ -70,6 +70,7 @@ class AMPECO_Session_Importer:
 
             sessions_df = pd.DataFrame(sessions)           
             print(f"Total sessions fetched: {len(sessions_df)}")
+            sessions_df.to_excel("sessions_fetched.xlsx", index=False)
 
             return sessions_df
         except Exception as e:
